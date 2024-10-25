@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd"
+          xmlns="http://maven.apache.org/SETTINGS/1.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <profiles>
+        <profile>
+            <id>project</id>
+            <properties>
+                <revision>1.0-SNAPSHOT</revision>
+                <java.version>17</java.version>
+                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+            </properties>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>project</activeProfile>
+    </activeProfiles>
+    <mirrors>
+        <mirror>
+            <id>central</id>
+            <url>http://repo1.maven.org/maven2</url>
+            <name>Central Repository</name>
+        </mirror>
+    </mirrors>
+</settings>

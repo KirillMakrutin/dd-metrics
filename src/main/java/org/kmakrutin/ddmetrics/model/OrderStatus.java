@@ -1,0 +1,10 @@
+package org.kmakrutin.ddmetrics.model;
+
+public enum OrderStatus {
+    WAITING_COLLECTION,
+    COLLECTING,
+    WAITING_DELIVERY_WAREHOUSE,
+    DELIVERING_WAREHOUSE,
+    WAITING_DELIVERY_CUSTOMER,
+    DELIVERING_CUSTOMER,
+}

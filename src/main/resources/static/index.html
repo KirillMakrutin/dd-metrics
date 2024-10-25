@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Orders</title>
+    <style>
+        #toggleProducerBtn {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px;
+            cursor: pointer;
+            color: aliceblue;
+        }
+
+        .producerOFF {
+            background-color: #af2828;
+        }
+
+        .producerOFF:hover, .producerOFF:active {
+            background-color: #6b0101
+        }
+
+        .producerON {
+            background-color: #4b8e24;
+        }
+
+        .producerON:hover, .producerON:active {
+            background-color: #246b01
+        }
+
+        #queue-container label {
+            display: inline-block;
+            width: 13rem;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border: 3px solid #ccc;
+            border-right: none;
+            border-radius: 0.5rem 0 0 0.5rem;
+            font-size: 1rem;
+        }
+
+        #queue-container select {
+            background-color: #ccc;
+            display: inline-block;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border: 3px solid #ccc;
+            border-radius: 0 0.5rem 0.5rem 0;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Orders</h1>
+    <div>
+        <h2>Turn <span id="toggleProducerStatus">ON</span> producing orders</h2>
+        <button id="toggleProducerBtn" class="producerOFF">Disabled</button>
+        <h2>Queue workers</h2>
+        <div id="queue-container">
+        </div>
+    </div>
+
+    <script>
+        // Function to dynamically generate the dropdowns
+        function generateQueueControls(consumerData) {
+            const container = document.getElementById("queue-container");
+
+            // Clear the container before regenerating
+            container.innerHTML = '';
+
+            for (let queue in consumerData) {
+                // Create a label for the queue
+                let label = document.createElement("label");
+                label.innerHTML = `${queue}`;
+                label.setAttribute("for", queue);
+
+                // Create a select dropdown for each queue
+                let select = document.createElement("select");
+                select.id = queue;
+                select.name = queue;
+                select.addEventListener("change", updateConsumers)
+
+                // Populate the dropdown with options from 1 to 10
+                for (let i = 1; i <= 10; i++) {
+                    let option = document.createElement("option");
+                    option.value = i;
+                    option.text = i;
+                    if (i === consumerData[queue]) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                }
+
+                // Add the label and select dropdown to the container
+                container.appendChild(label);
+                container.appendChild(select);
+                container.appendChild(document.createElement("br"));
+            }
+        }
+
+        function updateConsumers(event) {
+            let selectedOption = event.target;
+            let queueName = selectedOption.name;
+            let size = selectedOption.value;
+            fetch(`http://localhost:8080/api/orders/workers/${queueName}/${size}`, {
+                method: "POST"
+            })
+        }
+
+        function toggleProducer(disabling, buttonElement) {
+            buttonElement.innerHTML = disabling ? "Disabled" : "Enabled";
+            buttonElement.className = disabling ? "producerOFF" : "producerON";
+            document.getElementById("toggleProducerStatus").innerText = disabling ? "ON" : "OFF";
+        }
+
+        document.getElementById("toggleProducerBtn").addEventListener("click", even => {
+            let button = even.target;
+            let disabling = button.innerHTML !== "Disabled";
+
+            fetch(`http://localhost:8080/api/orders/producer?toggle=${disabling ? "OFF" : "ON"}`, {
+                method: "POST"
+            })
+                .then(_ignored => toggleProducer(disabling, button))
+                .catch(console.error)
+        })
+
+        // Initialize the controls when the page loads
+        window.onload = function () {
+            fetch("http://localhost:8080/api/orders/producer")
+                .then(resp => resp.json())
+                .then(producerStatus => {
+                    let disabling = producerStatus.enabled !== true;
+                    toggleProducer(disabling, document.getElementById("toggleProducerBtn"))
+                })
+
+            fetch("http://localhost:8080/api/orders/workers")
+                .then(resp => resp.json())
+                .then(workers => generateQueueControls(workers))
+        };
+    </script>
+</main>
+</body>
+</html>
