@@ -14,4 +14,10 @@ public class MeterConfiguration {
         return registry -> registry.config()
                 .meterFilter(MeterFilter.ignoreTags("city"));
     }
+
+    @Bean
+    public MeterRegistryCustomizer<?> commonTags() {
+        return registry -> registry.config()
+                .commonTags("env", "local", "service", "orders");
+    }
 }
